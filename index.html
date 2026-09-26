@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html id="html-root" lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">النظام المحاسبي السحابي للشركات</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Cairo', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <!-- شريط اختيار اللغة العلوي -->
+    <div class="absolute top-4 left-4 flex gap-2">
+        <select id="lang-switcher" onchange="changeLanguage(this.value)" class="bg-white border text-sm px-3 py-1.5 rounded-xl shadow-sm outline-none font-semibold">
+            <option value="ar">العربية (Arabic)</option>
+            <option value="en">English (الإنجليزية)</option>
+        </select>
+    </div>
+
+    <!-- شاشة تسجيل الدخول والتسجيل -->
+    <div id="auth-screen" class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-slate-100">
+            <div class="text-center mb-6">
+                <h1 id="t-main-title" class="text-2xl font-bold text-indigo-600">نظام إدارة الشركات</h1>
+                <p id="t-sub-title" class="text-sm text-slate-500 mt-1">تجربة مجانية لمدة 3 أشهر كاملة فور التسجيل!</p>
+            </div>
+
+            <!-- أزرار التبديل -->
+            <div class="flex mb-6 bg-slate-100 p-1 rounded-xl">
+                <button onclick="switchTab('login')" id="login-tab" class="flex-1 py-2 text-sm font-bold rounded-lg bg-white shadow-sm transition">تسجيل الدخول</button>
+                <button onclick="switchTab('register')" id="register-tab" class="flex-1 py-2 text-sm font-bold rounded-lg text-slate-500 transition">حساب جديد</button>
+            </div>
+
+            <!-- فورم الدخول -->
+            <div id="login-form" class="space-y-4">
+                <div>
+                    <label id="l-email" class="block text-sm font-semibold mb-1">البريد الإلكتروني للشركة</label>
+                    <input type="email" id="login-email" class="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="company@domain.com">
+                </div>
+                <div>
+                    <label id="l-pass" class="block text-sm font-semibold mb-1">كلمة المرور</label>
+                    <input type="password" id="login-password" class="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="••••••••">
+                </div>
+                <button onclick="login()" id="btn-login-action" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition">دخول للنظام</button>
+            </div>
+
+            <!-- فورم التسجيل -->
+            <div id="register-form" class="space-y-4 hidden">
+                <div>
+                    <label id="l-cname" class="block text-sm font-semibold mb-1">اسم الشركة</label>
+                    <input type="text" id="reg-name" class="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="اسم الشركة">
+                </div>
+                <div>
+                    <label id="l-remail" class="block text-sm font-semibold mb-1">البريد الإلكتروني</label>
+                    <input type="email" id="reg-email" class="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="company@domain.com">
+                </div>
+                <div>
+                    <label id="l-rpass" class="block text-sm font-semibold mb-1">كلمة المرور</label>
+                    <input type="password" id="reg-password" class="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="••••••••">
+                </div>
+                <div id="t-trial-notice" class="bg-indigo-50 p-3 rounded-xl text-xs text-indigo-700 font-semibold text-center">
+                    🎁 ستحصل على فترة تجريبية مجانية لمدة 3 أشهر فور إتمام التسجيل!
+                </div>
+                <button onclick="register()" id="btn-reg-action" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold hover:bg-emerald-700 transition">إنشاء حساب الشركة</button>
+            </div>
+            <div id="auth-msg" class="mt-4 text-center text-sm font-semibold"></div>
+        </div>
+    </div>
+
+    <!-- لوحة التحكم -->
+    <div id="dashboard-screen" class="hidden min-h-screen flex flex-col">
+        <header class="bg-white border-b px-6 py-4 flex justify-between items-center shadow-sm">
+            <div class="flex items-center gap-4">
+                <h2 id="company-title" class="text-xl font-bold text-indigo-600">اسم الشركة</h2>
+                <span id="t-badge" class="bg-emerald-100 text-emerald-800 text-xs px-3 py-1 rounded-full font-bold">باقة التجربة المجانية (3 أشهر)</span>
+            </div>
+            <button onclick="logout()" id="t-logout" class="text-rose-600 font-semibold text-sm hover:underline">تسجيل الخروج</button>
+        </header>
+
+        <main class="p-6 max-w-6xl mx-auto w-full flex-1 space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border">
+                <h3 id="t-add-prod" class="font-bold text-lg mb-4 text-slate-700">إضافة منتج جديد للمخزن</h3>
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <input type="text" id="p-code" placeholder="كود المنتج" class="px-4 py-2 border rounded-xl outline-none">
+                    <input type="text" id="p-name" placeholder="اسم المنتج" class="px-4 py-2 border rounded-xl outline-none">
+                    <input type="number" id="p-buy" placeholder="سعر الشراء" class="px-4 py-2 border rounded-xl outline-none">
+                    <input type="number" id="p-sell" placeholder="سعر البيع" class="px-4 py-2 border rounded-xl outline-none">
+                    <input type="number" id="p-qty" placeholder="الكمية" class="px-4 py-2 border rounded-xl outline-none">
+                </div>
+                <button onclick="addProduct()" id="t-btn-save" class="mt-4 bg-indigo-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-indigo-700 transition">حفظ المنتج</button>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const API_URL = 'https://smart-accounting-api-production.up.railway.app';
+
+        const translations = {
+            ar: {
+                dir: 'rtl',
+                title: 'النظام المحاسبي السحابي للشركات',
+                mainTitle: 'نظام إدارة الشركات',
+                subTitle: 'تجربة مجانية لمدة 3 أشهر كاملة فور التسجيل!',
+                loginTab: 'تسجيل الدخول',
+                regTab: 'حساب جديد',
+                emailLabel: 'البريد الإلكتروني للشركة',
+                passLabel: 'كلمة المرور',
+                loginBtn: 'دخول للنظام',
+                cNameLabel: 'اسم الشركة',
+                regEmailLabel: 'البريد الإلكتروني',
+                regPassLabel: 'كلمة المرور',
+                trialNotice: '🎁 ستحصل على فترة تجريبية مجانية لمدة 3 أشهر فور إتمام التسجيل!',
+                regBtn: 'إنشاء حساب الشركة',
+                badge: 'باقة التجربة المجانية (3 أشهر)',
+                logout: 'تسجيل الخروج',
+                addProd: 'إضافة منتج جديد للمخزن',
+                saveBtn: 'حفظ المنتج',
+                pCode: 'كود المنتج',
+                pName: 'اسم المنتج',
+                pBuy: 'سعر الشراء',
+                pSell: 'سعر البيع',
+                pQty: 'الكمية'
+            },
+            en: {
+                dir: 'ltr',
+                title: 'Cloud Accounting System for Enterprises',
+                mainTitle: 'Enterprise Management System',
+                subTitle: 'Free 3-month trial upon registration!',
+                loginTab: 'Login',
+                regTab: 'New Account',
+                emailLabel: 'Company Email',
+                passLabel: 'Password',
+                loginBtn: 'Login to System',
+                cNameLabel: 'Company Name',
+                regEmailLabel: 'Email Address',
+                regPassLabel: 'Password',
+                trialNotice: '🎁 You will get a 3-month free trial period immediately after registration!',
+                regBtn: 'Create Company Account',
+                badge: 'Free Trial Package (3 Months)',
+                logout: 'Logout',
+                addProd: 'Add New Product to Inventory',
+                saveBtn: 'Save Product',
+                pCode: 'Product Code',
+                pName: 'Product Name',
+                pBuy: 'Buy Price',
+                pSell: 'Sell Price',
+                pQty: 'Quantity'
+            }
+        };
+
+        function changeLanguage(lang) {
+            localStorage.setItem('lang', lang);
+            const t = translations[lang];
+            
+            document.getElementById('html-root').setAttribute('lang', lang);
+            document.getElementById('html-root').setAttribute('dir', t.dir);
+
+            document.getElementById('page-title').innerText = t.title;
+            document.getElementById('t-main-title').innerText = t.mainTitle;
+            document.getElementById('t-sub-title').innerText = t.subTitle;
+            document.getElementById('login-tab').innerText = t.loginTab;
+            document.getElementById('register-tab').innerText = t.regTab;
+            document.getElementById('l-email').innerText = t.emailLabel;
+            document.getElementById('l-pass').innerText = t.passLabel;
+            document.getElementById('btn-login-action').innerText = t.loginBtn;
+            document.getElementById('l-cname').innerText = t.cNameLabel;
+            document.getElementById('l-remail').innerText = t.regEmailLabel;
+            document.getElementById('l-rpass').innerText = t.regPassLabel;
+            document.getElementById('t-trial-notice').innerText = t.trialNotice;
+            document.getElementById('btn-reg-action').innerText = t.regBtn;
+            document.getElementById('t-badge').innerText = t.badge;
+            document.getElementById('t-logout').innerText = t.logout;
+            document.getElementById('t-add-prod').innerText = t.addProd;
+            document.getElementById('t-btn-save').innerText = t.saveBtn;
+
+            document.getElementById('p-code').placeholder = t.pCode;
+            document.getElementById('p-name').placeholder = t.pName;
+            document.getElementById('p-buy').placeholder = t.pBuy;
+            document.getElementById('p-sell').placeholder = t.pSell;
+            document.getElementById('p-qty').placeholder = t.pQty;
+        }
+
+        window.onload = () => {
+            const savedLang = localStorage.getItem('lang') || 'ar';
+            document.getElementById('lang-switcher').value = savedLang;
+            changeLanguage(savedLang);
+
+            if(localStorage.getItem('token')) {
+                showDashboard();
+            }
+        };
+
+        function switchTab(tab) {
+            if(tab === 'login') {
+                document.getElementById('login-form').classList.remove('hidden');
+                document.getElementById('register-form').classList.add('hidden');
+                document.getElementById('login-tab').className = "flex-1 py-2 text-sm font-bold rounded-lg bg-white shadow-sm transition";
+                document.getElementById('register-tab').className = "flex-1 py-2 text-sm font-bold rounded-lg text-slate-500 transition";
+            } else {
+                document.getElementById('register-form').classList.remove('hidden');
+                document.getElementById('login-form').classList.add('hidden');
+                document.getElementById('register-tab').className = "flex-1 py-2 text-sm font-bold rounded-lg bg-white shadow-sm transition";
+                document.getElementById('login-tab').className = "flex-1 py-2 text-sm font-bold rounded-lg text-slate-500 transition";
+            }
+        }
+
+        async function register() {
+            const companyName = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+            const msg = document.getElementById('auth-msg');
+
+            try {
+                const res = await fetch(`${API_URL}/api/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ companyName, email, password })
+                });
+                const data = await res.json();
+                if(res.ok) {
+                    msg.className = "mt-4 text-center text-sm font-semibold text-emerald-600";
+                    msg.innerText = "تم إنشاء الحساب بنجاح! فترة التجربة 3 أشهر بدأت.";
+                    switchTab('login');
+                } else {
+                    msg.className = "mt-4 text-center text-sm font-semibold text-rose-600";
+                    msg.innerText = data.error || "خطأ في التسجيل";
+                }
+            } catch(e) {
+                msg.innerText = "تعذر الاتصال بالسيرفر";
+            }
+        }
+
+        async function login() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const msg = document.getElementById('auth-msg');
+
+            try {
+                const res = await fetch(`${API_URL}/api/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                if(res.ok) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('companyName', data.companyName);
+                    showDashboard();
+                } else {
+                    msg.className = "mt-4 text-center text-sm font-semibold text-rose-600";
+                    msg.innerText = data.error || "خطأ في البيانات";
+                }
+            } catch(e) {
+                msg.innerText = "تعذر الاتصال بالسيرفر";
+            }
+        }
+
+        function showDashboard() {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('dashboard-screen').classList.remove('hidden');
+            document.getElementById('company-title').innerText = localStorage.getItem('companyName');
+        }
+
+        function logout() {
+            localStorage.clear();
+            location.reload();
+        }
+
+        async function addProduct() {
+            const token = localStorage.getItem('token');
+            const code = document.getElementById('p-code').value;
+            const name = document.getElementById('p-name').value;
+            const buy = document.getElementById('p-buy').value;
+            const sell = document.getElementById('p-sell').value;
+            const qty = document.getElementById('p-qty').value;
+
+            const res = aai = await fetch(`${API_URL}/api/products`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'authorization': token },
+                body: JSON.stringify({ code, name, buy, sell, qty })
+            });
+
+            if(res.ok) {
+                alert('تم إضافة المنتج بنجاح!');
+                document.getElementById('p-code').value = '';
+                document.getElementById('p-name').value = '';
+                document.getElementById('p-buy').value = '';
+                document.getElementById('p-sell').value = '';
+                document.getElementById('p-qty').value = '';
+            }
+        }
+    </script>
+</body>
+</html>
