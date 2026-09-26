@@ -8,7 +8,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// الاتصال بقاعدة البيانات السحابية أو المحلية
+// الاتصال بقاعدة البيانات
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/smart_accounting_saas';
 mongoose.connect(MONGO_URI)
 .then(() => console.log('✅ تم الاتصال بقاعدة البيانات بنجاح'))
@@ -16,7 +16,7 @@ mongoose.connect(MONGO_URI)
 
 const JWT_SECRET = process.env.JWT_SECRET || 'Hussein_Elsanhoty_Secret_Key_2026';
 
-// 1. جدول الشركات (Tenants & Subscriptions)
+// 1. جدول الشركات
 const CompanySchema = new mongoose.Schema({
     companyName: { type: String, required: true },
     email: { type: String, required: true, unique: true },
@@ -38,7 +38,7 @@ const ProductSchema = new mongoose.Schema({
 });
 const Product = mongoose.model('Product', ProductSchema);
 
-// Middleware للتحقق من التوكن والاشتراك
+// Middleware للتحقق من التوكن
 const verifyTokenAndSubscription = async (req, res, next) => {
     const token = req.headers['authorization'];
     if (!token) return res.status(401).json({ error: 'ممنوع الدخول، يرجى تسجيل الدخول أولاً' });
@@ -59,7 +59,7 @@ const verifyTokenAndSubscription = async (req, res, next) => {
     }
 };
 
-// --- المسارات (Routes) ---
+// --- المسارات ---
 app.get('/', (req, res) => {
     res.send('🚀 Smart Accounting API is running successfully!');
 });
@@ -86,7 +86,7 @@ app.post('/api/login', async (req, res) => {
         const company = await Company.findOne({ email });
         if (!company) return res.status(404).json({ error: 'البيانات غير صحيحة' });
 
-description: const isMatch = await bcrypt.compare(password, company.password);
+        const isMatch = await bcrypt.compare(password, company.password);
         if (!isMatch) return res.status(400).json({ error: 'كلمة المرور غير صحيحة' });
 
         const token = jwt.sign({ companyId: company._id }, JWT_SECRET, { expiresIn: '7d' });
