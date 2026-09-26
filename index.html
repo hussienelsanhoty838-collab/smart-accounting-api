@@ -91,6 +91,7 @@
                     <input type="number" id="p-qty" placeholder="الكمية" class="px-4 py-2 border rounded-xl outline-none">
                 </div>
                 <button onclick="addProduct()" id="t-btn-save" class="mt-4 bg-indigo-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-indigo-700 transition">حفظ المنتج</button>
+                <div id="prod-msg" class="mt-3 text-sm font-semibold"></div>
             </div>
         </main>
     </div>
@@ -194,6 +195,8 @@
         };
 
         function switchTab(tab) {
+            const msg = document.getElementById('auth-msg');
+            msg.innerText = '';
             if(tab === 'login') {
                 document.getElementById('login-form').classList.remove('hidden');
                 document.getElementById('register-form').classList.add('hidden');
@@ -213,6 +216,12 @@
             const password = document.getElementById('reg-password').value;
             const msg = document.getElementById('auth-msg');
 
+            if(!companyName || !email || !password) {
+                msg.className = "mt-4 text-center text-sm font-semibold text-rose-600";
+                msg.innerText = "الرجاء إدخال جميع الحقول المطلوبة";
+                return;
+            }
+
             try {
                 const res = await fetch(`${API_URL}/api/register`, {
                     method: 'POST',
@@ -223,12 +232,13 @@
                 if(res.ok) {
                     msg.className = "mt-4 text-center text-sm font-semibold text-emerald-600";
                     msg.innerText = "تم إنشاء الحساب بنجاح! فترة التجربة 3 أشهر بدأت.";
-                    switchTab('login');
+                    setTimeout(() => switchTab('login'), 1500);
                 } else {
                     msg.className = "mt-4 text-center text-sm font-semibold text-rose-600";
-                    msg.innerText = data.error || "خطأ في التسجيل";
+                    msg.innerText = data.error || data.message || "خطأ في بيانات التسجيل";
                 }
             } catch(e) {
+                msg.className = "mt-4 text-center text-sm font-semibold text-rose-600";
                 msg.innerText = "تعذر الاتصال بالسيرفر";
             }
         }
@@ -237,6 +247,12 @@
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
             const msg = document.getElementById('auth-msg');
+
+            if(!email || !password) {
+                msg.className = "mt-4 text-center text-sm font-semibold text-rose-600";
+                msg.innerText = "الرجاء إدخال البريد الإلكتروني وكلمة المرور";
+                return;
+            }
 
             try {
                 const res = await fetch(`${API_URL}/api/login`, {
@@ -247,13 +263,14 @@
                 const data = await res.json();
                 if(res.ok) {
                     localStorage.setItem('token', data.token);
-                    localStorage.setItem('companyName', data.companyName);
+                    localStorage.setItem('companyName', data.companyName || 'شركتي');
                     showDashboard();
                 } else {
                     msg.className = "mt-4 text-center text-sm font-semibold text-rose-600";
-                    msg.innerText = data.error || "خطأ في البيانات";
+                    msg.innerText = data.error || data.message || "خطأ في البريد أو كلمة المرور";
                 }
             } catch(e) {
+                msg.className = "mt-4 text-center text-sm font-semibold text-rose-600";
                 msg.innerText = "تعذر الاتصال بالسيرفر";
             }
         }
@@ -276,20 +293,30 @@
             const buy = document.getElementById('p-buy').value;
             const sell = document.getElementById('p-sell').value;
             const qty = document.getElementById('p-qty').value;
+            const prodMsg = document.getElementById('prod-msg');
 
-            const res = aai = await fetch(`${API_URL}/api/products`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'authorization': token },
-                body: JSON.stringify({ code, name, buy, sell, qty })
-            });
-
-            if(res.ok) {
-                alert('تم إضافة المنتج بنجاح!');
-                document.getElementById('p-code').value = '';
-                document.getElementById('p-name').value = '';
-                document.getElementById('p-buy').value = '';
-                document.getElementById('p-sell').value = '';
-                document.getElementById('p-qty').value = '';
+            try {
+                const res = await fetch(`${API_URL}/api/products`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'authorization': token },
+                    body: JSON.stringify({ code, name, buy, sell, qty })
+                });
+                const data = await res.json();
+                if(res.ok) {
+                    prodMsg.className = "mt-3 text-sm font-semibold text-emerald-600";
+                    prodMsg.innerText = 'تم إضافة المنتج بنجاح!';
+                    document.getElementById('p-code').value = '';
+                    document.getElementById('p-name').value = '';
+                    document.getElementById('p-buy').value = '';
+                    document.getElementById('p-sell').value = '';
+                    document.getElementById('p-qty').value = '';
+                } else {
+                    prodMsg.className = "mt-3 text-sm font-semibold text-rose-600";
+                    prodMsg.innerText = data.error || "فشل إضافة المنتج";
+                }
+            } catch(e) {
+                prodMsg.className = "mt-3 text-sm font-semibold text-rose-600";
+                prodMsg.innerText = "خطأ في الاتصال بالسيرفر";
             }
         }
     </script>
