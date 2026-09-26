@@ -1,0 +1,15 @@
+{
+  "name": "النظام المحاسبي السحابي",
+  "short_name": "النظام المحاسبي",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4f46e5",
+  "icons": [
+    {
+      "src": "https://img.icons8.com/color/192/000000/ledger.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
