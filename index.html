@@ -1,329 +1,224 @@
 <!DOCTYPE html>
-<html id="html-root" lang="ar" dir="rtl">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="page-title">النظام المحاسبي السحابي للشركات</title>
-    
-    <!-- إعدادات الـ PWA لـ PWABuilder -->
-    <link rel="manifest" href="/manifest.json">
+    <title>النظام المحاسبي السحابي</title>
+    <!-- ربط ملف الـ Manifest -->
+    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#4f46e5">
-
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Cairo', sans-serif; }
-    </style>
+    <!-- استخدام Tailwind CSS لتصميم سريع واحترافي -->
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-50 text-slate-800">
+<body class="bg-gray-50 font-sans text-gray-800">
 
-    <!-- شريط اختيار اللغة العلوي -->
-    <div class="absolute top-4 left-4 flex gap-2">
-        <select id="lang-switcher" onchange="changeLanguage(this.value)" class="bg-white border text-sm px-3 py-1.5 rounded-xl shadow-sm outline-none font-semibold">
-            <option value="ar">العربية (Arabic)</option>
-            <option value="en">English (الإنجليزية)</option>
-        </select>
-    </div>
-
-    <!-- شاشة تسجيل الدخول والتسجيل -->
-    <div id="auth-screen" class="min-h-screen flex items-center justify-center p-4">
-        <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-slate-100">
+    <!-- شاشة تسجيل الدخول (تظهر لو المستخدم مش مسجل دخوله) -->
+    <div id="login-screen" class="min-h-screen flex items-center justify-center p-4 bg-gray-100">
+        <div class="bg-white p-8 rounded-2xl shadow-md w-full max-w-md border border-gray-100">
             <div class="text-center mb-6">
-                <h1 id="t-main-title" class="text-2xl font-bold text-indigo-600">نظام إدارة الشركات</h1>
-                <p id="t-sub-title" class="text-sm text-slate-500 mt-1">تجربة مجانية لمدة 3 أشهر كاملة فور التسجيل!</p>
+                <h2 class="text-2xl font-bold text-indigo-600">🔐 تسجيل الدخول للنظام</h2>
+                <p class="text-sm text-gray-500 mt-1">أدخل بياناتك للوصول إلى لوحة التحكم</p>
             </div>
-
-            <!-- أزرار التبديل -->
-            <div class="flex mb-6 bg-slate-100 p-1 rounded-xl">
-                <button onclick="switchTab('login')" id="login-tab" class="flex-1 py-2 text-sm font-bold rounded-lg bg-white shadow-sm transition">تسجيل الدخول</button>
-                <button onclick="switchTab('register')" id="register-tab" class="flex-1 py-2 text-sm font-bold rounded-lg text-slate-500 transition">حساب جديد</button>
-            </div>
-
-            <!-- فورم الدخول -->
-            <div id="login-form" class="space-y-4">
+            <form id="login-form" class="space-y-4">
                 <div>
-                    <label id="l-email" class="block text-sm font-semibold mb-1">البريد الإلكتروني للشركة</label>
-                    <input type="email" id="login-email" class="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="company@domain.com">
+                    <label class="block text-sm font-medium text-gray-600 mb-1">اسم المستخدم أو البريد</label>
+                    <input type="text" id="login-user" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="أدخل اسم المستخدم...">
                 </div>
                 <div>
-                    <label id="l-pass" class="block text-sm font-semibold mb-1">كلمة المرور</label>
-                    <input type="password" id="login-password" class="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="••••••••">
+                    <label class="block text-sm font-medium text-gray-600 mb-1">كلمة المرور</label>
+                    <input type="password" id="login-pass" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="••••••••">
                 </div>
-                <button onclick="login()" id="btn-login-action" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition">دخول للنظام</button>
-            </div>
-
-            <!-- فورم التسجيل -->
-            <div id="register-form" class="space-y-4 hidden">
-                <div>
-                    <label id="l-cname" class="block text-sm font-semibold mb-1">اسم الشركة</label>
-                    <input type="text" id="reg-name" class="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="اسم الشركة">
-                </div>
-                <div>
-                    <label id="l-remail" class="block text-sm font-semibold mb-1">البريد الإلكتروني</label>
-                    <input type="email" id="reg-email" class="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="company@domain.com">
-                </div>
-                <div>
-                    <label id="l-rpass" class="block text-sm font-semibold mb-1">كلمة المرور</label>
-                    <input type="password" id="reg-password" class="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="••••••••">
-                </div>
-                <div id="t-trial-notice" class="bg-indigo-50 p-3 rounded-xl text-xs text-indigo-700 font-semibold text-center">
-                    🎁 ستحصل على فترة تجريبية مجانية لمدة 3 أشهر فور إتمام التسجيل!
-                </div>
-                <button onclick="register()" id="btn-reg-action" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold hover:bg-emerald-700 transition">إنشاء حساب الشركة</button>
-            </div>
-            <div id="auth-msg" class="mt-4 text-center text-sm font-semibold"></div>
+                <button type="submit" class="w-full bg-indigo-600 text-white font-medium py-3 rounded-lg hover:bg-indigo-700 transition shadow-md">دخول للنظام</button>
+            </form>
         </div>
     </div>
 
-    <!-- لوحة التحكم -->
-    <div id="dashboard-screen" class="hidden min-h-screen flex flex-col">
-        <header class="bg-white border-b px-6 py-4 flex justify-between items-center shadow-sm">
-            <div class="flex items-center gap-4">
-                <h2 id="company-title" class="text-xl font-bold text-indigo-600">اسم الشركة</h2>
-                <span id="t-badge" class="bg-emerald-100 text-emerald-800 text-xs px-3 py-1 rounded-full font-bold">باقة التجربة المجانية (3 أشهر)</span>
+    <!-- لوحة التحكم الرئيسية (تظهر بعد تسجيل الدخول) -->
+    <div id="app-screen" class="hidden min-h-screen flex flex-col">
+        <!-- شريط العرض العلوي -->
+        <header class="bg-indigo-600 text-white shadow-md">
+            <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+                <div class="flex items-center space-x-3 space-x-reverse">
+                    <h1 class="text-xl font-bold">📊 النظام المحاسبي</h1>
+                    <span class="bg-indigo-700 text-xs px-3 py-1 rounded-full hidden sm:inline-block">متصل بالسحابة</span>
+                </div>
+                <div class="flex items-center space-x-3 space-x-reverse">
+                    <span id="user-display" class="text-sm font-medium"></span>
+                    <button onclick="logout()" class="bg-red-500 hover:bg-red-600 text-white text-xs px-3 py-2 rounded-lg transition shadow-sm">تسجيل خروج 🚪</button>
+                </div>
             </div>
-            <button onclick="logout()" id="t-logout" class="text-rose-600 font-semibold text-sm hover:underline">تسجيل الخروج</button>
         </header>
 
-        <main class="p-6 max-w-6xl mx-auto w-full flex-1 space-y-6">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border">
-                <h3 id="t-add-prod" class="font-bold text-lg mb-4 text-slate-700">إضافة منتج جديد للمخزن</h3>
-                <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-                    <input type="text" id="p-code" placeholder="كود المنتج" class="px-4 py-2 border rounded-xl outline-none">
-                    <input type="text" id="p-name" placeholder="اسم المنتج" class="px-4 py-2 border rounded-xl outline-none">
-                    <input type="number" id="p-buy" placeholder="سعر الشراء" class="px-4 py-2 border rounded-xl outline-none">
-                    <input type="number" id="p-sell" placeholder="سعر البيع" class="px-4 py-2 border rounded-xl outline-none">
-                    <input type="number" id="p-qty" placeholder="الكمية" class="px-4 py-2 border rounded-xl outline-none">
+        <main class="container mx-auto px-4 py-6 max-w-4xl flex-grow">
+            <!-- إحصائيات سريعة -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-500">إجمالي أصناف المخزن</p>
+                        <h3 id="total-items" class="text-2xl font-bold text-indigo-600">0</h3>
+                    </div>
+                    <div class="bg-indigo-50 p-3 rounded-lg text-indigo-600">📦</div>
                 </div>
-                <button onclick="addProduct()" id="t-btn-save" class="mt-4 bg-indigo-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-indigo-700 transition">حفظ المنتج</button>
-                <div id="prod-msg" class="mt-3 text-sm font-semibold"></div>
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-500">إجمالي قيمة المخزن</p>
+                        <h3 id="total-value" class="text-2xl font-bold text-emerald-600">0.00 ر.س</h3>
+                    </div>
+                    <div class="bg-emerald-50 p-3 rounded-lg text-emerald-600">💰</div>
+                </div>
+            </div>
+
+            <!-- فورم إضافة منتج جديد -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
+                <h2 class="text-lg font-bold mb-4 text-gray-700 border-b pb-2">➕ إضافة منتج جديد للمخزن</h2>
+                
+                <form id="product-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">كود المنتج</label>
+                        <input type="text" id="code" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="أدخل الكود...">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">اسم المنتج</label>
+                        <input type="text" id="name" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="أدخل اسم المنتج...">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">سعر الشراء</label>
+                        <input type="number" step="0.01" id="buy-price" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="0.00">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">سعر البيع</label>
+                        <input type="number" step="0.01" id="sell-price" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="0.00">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-600 mb-1">الكمية المتاحة</label>
+                        <input type="number" id="qty" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="0">
+                    </div>
+                    <div class="md:col-span-2 mt-2">
+                        <button type="submit" class="w-full bg-indigo-600 text-white font-medium py-3 rounded-lg hover:bg-indigo-700 transition shadow-md">حفظ المنتج في المخزن</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- جدول عرض المنتجات -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 overflow-hidden">
+                <h2 class="text-lg font-bold mb-4 text-gray-700 border-b pb-2">📋 قائمة المنتجات المسجلة</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-right border-collapse">
+                        <thead>
+                            <tr class="bg-gray-100 text-gray-600 text-sm">
+                                <th class="p-3">الكود</th>
+                                <th class="p-3">المنتج</th>
+                                <th class="p-3">الشراء</th>
+                                <th class="p-3">البيع</th>
+                                <th class="p-3">الكمية</th>
+                                <th class="p-3">إجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody id="product-table-body" class="divide-y divide-gray-100 text-sm">
+                            <tr><td colspan="6" class="text-center py-6 text-gray-400">لا توجد منتجات مسجلة حتى الآن</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </main>
     </div>
 
+    <!-- سكريبت إدارة الجلسات والحسابات -->
     <script>
-        const API_URL = 'https://smart-accounting-api-production.up.railway.app';
+        const loginScreen = document.getElementById('login-screen');
+        const appScreen = document.getElementById('app-screen');
+        const loginForm = document.getElementById('login-form');
+        const userDisplay = document.getElementById('user-display');
 
-        const translations = {
-            ar: {
-                dir: 'rtl',
-                title: 'النظام المحاسبي السحابي للشركات',
-                mainTitle: 'نظام إدارة الشركات',
-                subTitle: 'تجربة مجانية لمدة 3 أشهر كاملة فور التسجيل!',
-                loginTab: 'تسجيل الدخول',
-                regTab: 'حساب جديد',
-                emailLabel: 'البريد الإلكتروني للشركة',
-                passLabel: 'كلمة المرور',
-                loginBtn: 'دخول للنظام',
-                cNameLabel: 'اسم الشركة',
-                regEmailLabel: 'البريد الإلكتروني',
-                regPassLabel: 'كلمة المرور',
-                trialNotice: '🎁 ستحصل على فترة تجريبية مجانية لمدة 3 أشهر فور إتمام التسجيل!',
-                regBtn: 'إنشاء حساب الشركة',
-                badge: 'باقة التجربة المجانية (3 أشهر)',
-                logout: 'تسجيل الخروج',
-                addProd: 'إضافة منتج جديد للمخزن',
-                saveBtn: 'حفظ المنتج',
-                pCode: 'كود المنتج',
-                pName: 'اسم المنتج',
-                pBuy: 'سعر الشراء',
-                pSell: 'سعر البيع',
-                pQty: 'الكمية'
-            },
-            en: {
-                dir: 'ltr',
-                title: 'Cloud Accounting System for Enterprises',
-                mainTitle: 'Enterprise Management System',
-                subTitle: 'Free 3-month trial upon registration!',
-                loginTab: 'Login',
-                regTab: 'New Account',
-                emailLabel: 'Company Email',
-                passLabel: 'Password',
-                loginBtn: 'Login to System',
-                cNameLabel: 'Company Name',
-                regEmailLabel: 'Email Address',
-                regPassLabel: 'Password',
-                trialNotice: '🎁 You will get a 3-month free trial period immediately after registration!',
-                regBtn: 'Create Company Account',
-                badge: 'Free Trial Package (3 Months)',
-                logout: 'Logout',
-                addProd: 'Add New Product to Inventory',
-                saveBtn: 'Save Product',
-                pCode: 'Product Code',
-                pName: 'Product Name',
-                pBuy: 'Buy Price',
-                pSell: 'Sell Price',
-                pQty: 'Quantity'
-            }
-        };
-
-        function changeLanguage(lang) {
-            localStorage.setItem('lang', lang);
-            const t = translations[lang];
-            
-            document.getElementById('html-root').setAttribute('lang', lang);
-            document.getElementById('html-root').setAttribute('dir', t.dir);
-
-            document.getElementById('page-title').innerText = t.title;
-            document.getElementById('t-main-title').innerText = t.mainTitle;
-            document.getElementById('t-sub-title').innerText = t.subTitle;
-            document.getElementById('login-tab').innerText = t.loginTab;
-            document.getElementById('register-tab').innerText = t.regTab;
-            document.getElementById('l-email').innerText = t.emailLabel;
-            document.getElementById('l-pass').innerText = t.passLabel;
-            document.getElementById('btn-login-action').innerText = t.loginBtn;
-            document.getElementById('l-cname').innerText = t.cNameLabel;
-            document.getElementById('l-remail').innerText = t.regEmailLabel;
-            document.getElementById('l-rpass').innerText = t.regPassLabel;
-            document.getElementById('t-trial-notice').innerText = t.trialNotice;
-            document.getElementById('btn-reg-action').innerText = t.regBtn;
-            document.getElementById('t-badge').innerText = t.badge;
-            document.getElementById('t-logout').innerText = t.logout;
-            document.getElementById('t-add-prod').innerText = t.addProd;
-            document.getElementById('t-btn-save').innerText = t.saveBtn;
-
-            document.getElementById('p-code').placeholder = t.pCode;
-            document.getElementById('p-name').placeholder = t.pName;
-            document.getElementById('p-buy').placeholder = t.pBuy;
-            document.getElementById('p-sell').placeholder = t.pSell;
-            document.getElementById('p-qty').placeholder = t.pQty;
-        }
-
-        window.onload = () => {
-            const savedLang = localStorage.getItem('lang') || 'ar';
-            document.getElementById('lang-switcher').value = savedLang;
-            changeLanguage(savedLang);
-
-            if(localStorage.getItem('token')) {
-                showDashboard();
-            }
-        };
-
-        function switchTab(tab) {
-            const msg = document.getElementById('auth-msg');
-            msg.innerText = '';
-            if(tab === 'login') {
-                document.getElementById('login-form').classList.remove('hidden');
-                document.getElementById('register-form').classList.add('hidden');
-                document.getElementById('login-tab').className = "flex-1 py-2 text-sm font-bold rounded-lg bg-white shadow-sm transition";
-                document.getElementById('register-tab').className = "flex-1 py-2 text-sm font-bold rounded-lg text-slate-500 transition";
+        // التحقق من حالة تسجيل الدخول عند فتح الصفحة
+        function checkAuth() {
+            const currentUser = localStorage.getItem('accounting_logged_user');
+            if (currentUser) {
+                loginScreen.classList.add('hidden');
+                appScreen.classList.remove('hidden');
+                userDisplay.innerText = `مرحباً، ${currentUser}`;
+                renderTable();
             } else {
-                document.getElementById('register-form').classList.remove('hidden');
-                document.getElementById('login-form').classList.add('hidden');
-                document.getElementById('register-tab').className = "flex-1 py-2 text-sm font-bold rounded-lg bg-white shadow-sm transition";
-                document.getElementById('login-tab').className = "flex-1 py-2 text-sm font-bold rounded-lg text-slate-500 transition";
+                loginScreen.classList.remove('hidden');
+                appScreen.classList.add('hidden');
             }
         }
 
-        async function register() {
-            const companyName = document.getElementById('reg-name').value;
-            const email = document.getElementById('reg-email').value;
-            const password = document.getElementById('reg-password').value;
-            const msg = document.getElementById('auth-msg');
+        // تسجيل الدخول
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('login-user').value;
+            localStorage.setItem('accounting_logged_user', username);
+            checkAuth();
+        });
 
-            if(!companyName || !email || !password) {
-                msg.className = "mt-4 text-center text-sm font-semibold text-rose-600";
-                msg.innerText = "الرجاء إدخال جميع الحقول المطلوبة";
+        // تسجيل الخروج
+        window.logout = function() {
+            localStorage.removeItem('accounting_logged_user');
+            checkAuth();
+        }
+
+        // إدارة المنتجات والمخزن
+        let products = JSON.parse(localStorage.getItem('accounting_products')) || [];
+        const form = document.getElementById('product-form');
+        const tableBody = document.getElementById('product-table-body');
+        const totalItemsEl = document.getElementById('total-items');
+        const totalValueEl = document.getElementById('total-value');
+
+        function renderTable() {
+            tableBody.innerHTML = '';
+            if (products.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-gray-400">لا توجد منتجات مسجلة حتى الآن</td></tr>`;
+                totalItemsEl.innerText = '0';
+                totalValueEl.innerText = '0.00 ر.س';
                 return;
             }
 
-            try {
-                const res = await fetch(`${API_URL}/api/register`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ companyName, email, password })
-                });
-                const data = await res.json();
-                if(res.ok) {
-                    msg.className = "mt-4 text-center text-sm font-semibold text-emerald-600";
-                    msg.innerText = "تم إنشاء الحساب بنجاح! فترة التجربة 3 أشهر بدأت.";
-                    setTimeout(() => switchTab('login'), 1500);
-                } else {
-                    msg.className = "mt-4 text-center text-sm font-semibold text-rose-600";
-                    msg.innerText = data.error || data.message || "خطأ في بيانات التسجيل";
-                }
-            } catch(e) {
-                msg.className = "mt-4 text-center text-sm font-semibold text-rose-600";
-                msg.innerText = "تعذر الاتصال بالسيرفر";
-            }
+            let totalVal = 0;
+            products.forEach((p, index) => {
+                totalVal += (p.buyPrice * p.qty);
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="p-3 font-mono text-gray-600">${p.code}</td>
+                    <td class="p-3 font-medium">${p.name}</td>
+                    <td class="p-3">${p.buyPrice}</td>
+                    <td class="p-3">${p.sellPrice}</td>
+                    <td class="p-3">${p.qty}</td>
+                    <td class="p-3">
+                        <button onclick="deleteProduct(${index})" class="text-red-500 hover:text-red-700 text-xs bg-red-50 px-2 py-1 rounded">حذف</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            totalItemsEl.innerText = products.length;
+            totalValueEl.innerText = totalVal.toFixed(2) + ' ر.س';
         }
 
-        async function login() {
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            const msg = document.getElementById('auth-msg');
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const newProduct = {
+                code: document.getElementById('code').value,
+                name: document.getElementById('name').value,
+                buyPrice: parseFloat(document.getElementById('buy-price').value),
+                sellPrice: parseFloat(document.getElementById('sell-price').value),
+                qty: parseInt(document.getElementById('qty').value)
+            };
 
-            if(!email || !password) {
-                msg.className = "mt-4 text-center text-sm font-semibold text-rose-600";
-                msg.innerText = "الرجاء إدخال البريد الإلكتروني وكلمة المرور";
-                return;
-            }
+            products.push(newProduct);
+            localStorage.setItem('accounting_products', JSON.stringify(products));
+            form.reset();
+            renderTable();
+        });
 
-            try {
-                const res = await fetch(`${API_URL}/api/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
-                });
-                const data = await res.json();
-                if(res.ok) {
-                    localStorage.setItem('token', data.token);
-                    localStorage.setItem('companyName', data.companyName || 'شركتي');
-                    showDashboard();
-                } else {
-                    msg.className = "mt-4 text-center text-sm font-semibold text-rose-600";
-                    msg.innerText = data.error || data.message || "خطأ في البريد أو كلمة المرور";
-                }
-            } catch(e) {
-                msg.className = "mt-4 text-center text-sm font-semibold text-rose-600";
-                msg.innerText = "تعذر الاتصال بالسيرفر";
-            }
+        window.deleteProduct = function(index) {
+            products.splice(index, 1);
+            localStorage.setItem('accounting_products', JSON.stringify(products));
+            renderTable();
         }
 
-        function showDashboard() {
-            document.getElementById('auth-screen').classList.add('hidden');
-            document.getElementById('dashboard-screen').classList.remove('hidden');
-            document.getElementById('company-title').innerText = localStorage.getItem('companyName');
-        }
-
-        function logout() {
-            localStorage.clear();
-            location.reload();
-        }
-
-        async function addProduct() {
-            const token = localStorage.getItem('token');
-            const code = document.getElementById('p-code').value;
-            const name = document.getElementById('p-name').value;
-            const buy = document.getElementById('p-buy').value;
-            const sell = document.getElementById('p-sell').value;
-            const qty = document.getElementById('p-qty').value;
-            const prodMsg = document.getElementById('prod-msg');
-
-            try {
-                const res = await fetch(`${API_URL}/api/products`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'authorization': token },
-                    body: JSON.stringify({ code, name, buy, sell, qty })
-                });
-                const data = await res.json();
-                if(res.ok) {
-                    prodMsg.className = "mt-3 text-sm font-semibold text-emerald-600";
-                    prodMsg.innerText = 'تم إضافة المنتج بنجاح!';
-                    document.getElementById('p-code').value = '';
-                    document.getElementById('p-name').value = '';
-                    document.getElementById('p-buy').value = '';
-                    document.getElementById('p-sell').value = '';
-                    document.getElementById('p-qty').value = '';
-                } else {
-                    prodMsg.className = "mt-3 text-sm font-semibold text-rose-600";
-                    prodMsg.innerText = data.error || "فشل إضافة المنتج";
-                }
-            } catch(e) {
-                prodMsg.className = "mt-3 text-sm font-semibold text-rose-600";
-                prodMsg.innerText = "خطأ في الاتصال بالسيرفر";
-            }
-        }
+        // تشغيل فحص المصادقة عند التحميل
+        checkAuth();
     </script>
 </body>
 </html>
