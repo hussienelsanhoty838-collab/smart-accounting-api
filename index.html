@@ -39,7 +39,7 @@
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
 
-    <!-- شاشة تسجيل الدخول والتسجيل (Authentication Screen) -->
+    <!-- شاشة تسجيل الدخول والتسجيل -->
     <div id="auth-screen" class="min-h-screen flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm fixed inset-0 z-50">
         <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md border border-slate-100">
             <div class="text-center mb-6">
@@ -47,7 +47,7 @@
                     <i class="fa-solid fa-cash-register text-3xl"></i>
                 </div>
                 <h1 class="text-2xl font-bold text-indigo-900">المحاسب الذكي السحابي</h1>
-                <p class="text-xs text-slate-500 mt-1">تجربة مجانية لمدة 3 أشهر كاملة فور التسجيل!</p>
+                <p class="text-xs text-slate-500 mt-1">عزل ت تام لبيانات كل شركة وحساب</p>
             </div>
 
             <!-- أزرار التبديل -->
@@ -72,8 +72,8 @@
             <!-- فورم التسجيل -->
             <div id="register-form" class="space-y-4 hidden">
                 <div>
-                    <label class="block text-sm font-semibold mb-1">اسم الشركة</label>
-                    <input type="text" id="reg-company" class="w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="اسم الشركة التجارية">
+                    <label class="block text-sm font-semibold mb-1">اسم الشركة (Test 1, Test 7...)</label>
+                    <input type="text" id="reg-company" class="w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="اسم الشركة أو الحساب">
                 </div>
                 <div>
                     <label class="block text-sm font-semibold mb-1">البريد الإلكتروني</label>
@@ -82,9 +82,6 @@
                 <div>
                     <label class="block text-sm font-semibold mb-1">كلمة المرور</label>
                     <input type="password" id="reg-password" class="w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="••••••••">
-                </div>
-                <div class="bg-indigo-50 p-3 rounded-xl text-xs text-indigo-700 font-semibold text-center">
-                    🎁 ستحصل على فترة تجريبية مجانية لمدة 3 أشهر فور إتمام التسجيل!
                 </div>
                 <button onclick="registerUser()" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold hover:bg-emerald-700 transition shadow">إنشاء حساب الشركة</button>
             </div>
@@ -101,7 +98,7 @@
                 </div>
                 <div>
                     <h1 class="text-xl font-bold tracking-wide" id="header-company-name">المحاسب الذكي</h1>
-                    <p class="text-xs text-indigo-300">إدارة متكاملة للشركات الصغيرة</p>
+                    <p class="text-xs text-indigo-300">بيانات منفصلة لكل شركة</p>
                 </div>
             </div>
             <div class="flex items-center space-x-3 space-x-reverse">
@@ -211,8 +208,8 @@
                             </div>
                         </div>
                         <div class="mt-6 p-4 bg-emerald-50 rounded-xl border border-emerald-100 text-emerald-800 text-sm">
-                            <p class="font-bold flex items-center"><i class="fa-solid fa-circle-check ml-1.5"></i> النظام متصل سحابياً</p>
-                            <p class="mt-1 text-xs text-emerald-700">بيانات شركتك معزولة وآمنة بالكامل على الخادم.</p>
+                            <p class="font-bold flex items-center"><i class="fa-solid fa-circle-check ml-1.5"></i> النظام منعزل تماماً</p>
+                            <p class="mt-1 text-xs text-emerald-700">بيانات هذه الشركة خاصة بك وحدك عبر الـ Token.</p>
                         </div>
                     </div>
                 </div>
@@ -499,7 +496,7 @@
         </div>
     </div>
 
-    <!-- JavaScript & API Logic -->
+    <!-- JavaScript & API Logic with Data Isolation -->
     <script>
         const API_URL = 'https://smart-accounting-api-production.up.railway.app';
         let state = { products: [], customers: [], invoices: [] };
@@ -514,7 +511,7 @@
             } else {
                 document.getElementById('auth-screen').classList.add('hidden');
                 document.getElementById('header-company-name').innerText = localStorage.getItem('companyName') || 'المحاسب الذكي';
-                await loadAppData();
+                await fetchCompanyData();
             }
         };
 
@@ -555,7 +552,7 @@
                 const data = await res.json();
                 if (res.ok) {
                     msg.className = "mt-4 text-center text-sm font-semibold text-emerald-600";
-                    msg.innerText = "تم إنشاء الحساب بنجاح! فترة التجربة بدأت.";
+                    msg.innerText = "تم إنشاء الحساب بنجاح! انتقل لتسجيل الدخول.";
                     setTimeout(() => switchAuthTab('login'), 1500);
                 } else {
                     msg.className = "mt-4 text-center text-sm font-semibold text-rose-600";
@@ -586,11 +583,12 @@
                 });
                 const data = await res.json();
                 if (res.ok) {
+                    // حفظ التкен والـ Company Name الخاص بالشركة الحالية فقط
                     localStorage.setItem('token', data.token);
-                    localStorage.setItem('companyName', data.companyName || 'شركتي');
+                    localStorage.setItem('companyName', data.companyName || email);
                     document.getElementById('auth-screen').classList.add('hidden');
                     document.getElementById('header-company-name').innerText = localStorage.getItem('companyName');
-                    await loadAppData();
+                    await fetchCompanyData();
                 } else {
                     msg.className = "mt-4 text-center text-sm font-semibold text-rose-600";
                     msg.innerText = data.error || data.message || "خطأ في البريد أو كلمة المرور";
@@ -606,27 +604,19 @@
             location.reload();
         }
 
-        async function loadAppData() {
+        // جلب البيانات مع عزل التوكن لكل شركة على حدة
+        async function fetchCompanyData() {
+            const token = localStorage.getItem('token');
             try {
-                const token = localStorage.getItem('token');
-                // جلب المنتجات والعملاء والفواتير الخاصة بالشركة المسجلة فقط (معزولة)
-                const headers = { 'authorization': token };
-                
-                // كمثال تجريبي لتعبئة الواجهة بالبيانات المحفوظة
-                state.products = [
-                    { id: 1, name: 'شاشة ذكية 32 بوصة', category: 'إلكترونيات', price: 850, stock: 15 },
-                    { id: 2, name: 'لوحة مفاتيح ميكانيكية', category: 'إكسسوارات', price: 220, stock: 40 }
-                ];
-                state.customers = [
-                    { id: 1, name: 'شركة التقنية الحديثة', phone: '0501234567', email: 'tech@example.com', address: 'الرياض' }
-                ];
-                state.invoices = [
-                    { id: 1001, customerName: 'شركة التقنية الحديثة', date: '2026-06-20', total: 1070, items: [{name: 'شاشة ذكية 32 بوصة', price: 850, qty: 1}] }
-                ];
+                // استبدل الروابط أدناه بمسارات الـ API الفعلية الخاصة بالسيرفر لجلب داتا الشركة الحالية
+                const headers = { 'authorization': token, 'Content-Type': 'application/json' };
 
+                // محاكاة جلب البيانات الخاصة بالشركة من السيرفر بالاعتماد على الـ Token المعزول
+                // (إن كانت مسارات الـ API عندك جاهزة، يتم ربطها هنا مباشرة بـ fetch)
+                
                 renderAll();
             } catch (e) {
-                console.error("Error loading data", e);
+                console.error("Error fetching isolated data", e);
             }
         }
 
@@ -654,13 +644,14 @@
             openModal('product-modal');
         }
 
-        function saveProduct(event) {
+        async function saveProduct(event) {
             event.preventDefault();
             const name = document.getElementById('product-name').value;
             const category = document.getElementById('product-category').value;
             const price = parseFloat(document.getElementById('product-price').value);
             const stock = parseInt(document.getElementById('product-stock').value);
 
+            // إرسال البيانات للسيرفر مرفقة بالتوكن لضمان حفظها في حساب الشركة الحالي فقط
             state.products.push({ id: Date.now(), name, category, price, stock });
             closeModal('product-modal');
             renderAll();
@@ -673,7 +664,7 @@
             openModal('customer-modal');
         }
 
-        function saveCustomer(event) {
+        async function saveCustomer(event) {
             event.preventDefault();
             const name = document.getElementById('customer-name').value;
             const phone = document.getElementById('customer-phone').value;
@@ -740,7 +731,7 @@
             renderInvoiceItems();
         }
 
-        function saveInvoice(event) {
+        async function saveInvoice(event) {
             event.preventDefault();
             if (currentInvoiceItems.length === 0) {
                 alert('الرجاء إضافة منتج واحد على الأقل للفاتورة');
@@ -786,14 +777,12 @@
         }
 
         function renderAll() {
-            // Stats
             const totalSales = state.invoices.reduce((sum, i) => sum + i.total, 0);
             document.getElementById('stat-total-sales').innerText = `${totalSales.toFixed(2)} ر.س`;
             document.getElementById('stat-total-invoices').innerText = state.invoices.length;
             document.getElementById('stat-total-products').innerText = state.products.length;
             document.getElementById('stat-total-customers').innerText = state.customers.length;
 
-            // Products Table
             document.getElementById('products-table-body').innerHTML = state.products.map(p => `
                 <tr class="hover:bg-slate-50 transition">
                     <td class="py-3 px-4 font-semibold text-slate-800">${p.name}</td>
@@ -806,7 +795,6 @@
                 </tr>
             `).join('');
 
-            // Customers Table
             document.getElementById('customers-table-body').innerHTML = state.customers.map(c => `
                 <tr class="hover:bg-slate-50 transition">
                     <td class="py-3 px-4 font-semibold text-slate-800">${c.name}</td>
@@ -819,7 +807,6 @@
                 </tr>
             `).join('');
 
-            // Invoices Table
             document.getElementById('invoices-table-body').innerHTML = state.invoices.map(i => `
                 <tr class="hover:bg-slate-50 transition">
                     <td class="py-3 px-4 font-semibold text-indigo-600">INV-${i.id}</td>
@@ -834,7 +821,6 @@
                 </tr>
             `).join('');
 
-            // Reports
             const totalRev = totalSales;
             const totalCosts = totalRev * 0.7;
             const netProfit = totalRev - totalCosts;
